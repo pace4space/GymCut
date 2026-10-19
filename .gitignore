@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# local data: videos of real athletes, analyses, exports, settings (access key), HTTPS certs
+data/
+# model weights (downloaded by setup / on first use)
+models/
+*.tmp
+
+# local tooling
+.claude/
+
+# Unreal project: only sources and config are versioned
+unreal/GymCutUE/Content/
+unreal/GymCutUE/Saved/
+unreal/GymCutUE/Intermediate/
+unreal/GymCutUE/DerivedDataCache/
+unreal/GymCutUE/Binaries/
+unreal/GymCutUE/Plugins/*/Binaries/
+unreal/GymCutUE/Plugins/*/Intermediate/
+unreal/GymCutUE/*.sln
+unreal/GymCutUE/.vs/

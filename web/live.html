@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d0f12">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>GymCut Live</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2336c2a0'/%3E%3Ccircle cx='20.5' cy='8' r='2.6' fill='%23062a21'/%3E%3Cpath d='M8 24c3-1 5-3.5 6.5-7l2-4.5 4 3.5 3.5-1' stroke='%23062a21' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/css/app.css">
+  <style>
+    body { overscroll-behavior: none; }
+    .lv { display: flex; flex-direction: column; min-height: 100dvh; padding-bottom: env(safe-area-inset-bottom); }
+    .lv-top { display: flex; align-items: center; gap: 10px; padding: 10px 14px; padding-top: max(10px, env(safe-area-inset-top)); border-bottom: 1px solid var(--line); }
+    .lv-top .brand svg { width: 24px; height: 24px; }
+    .conn { width: 9px; height: 9px; border-radius: 50%; background: var(--bad); flex: none; }
+    .conn.ok { background: var(--good); box-shadow: 0 0 8px var(--good); }
+    .stage { position: relative; background: #000; flex: 1; min-height: 52vh; display: grid; place-items: center; overflow: hidden; touch-action: manipulation; }
+    .stage video, .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+    .stage .start { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; padding: 24px; max-width: 420px; }
+    .stage .start p { color: var(--text-2); margin: 0; }
+    .badge-rec { position: absolute; top: 12px; left: 12px; z-index: 2; padding: 6px 10px; border-radius: 8px; background: rgba(0,0,0,.6); }
+    .badge-stats { position: absolute; top: 12px; right: 12px; z-index: 2; font: 600 11.5px var(--mono); color: #cfd6df; background: rgba(0,0,0,.55); padding: 4px 8px; border-radius: 7px; text-align: right; }
+    .badge-phase { position: absolute; left: 12px; bottom: 12px; z-index: 2; }
+    .panel { padding: 12px 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+    .ctrls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .ctrls .btn { height: 52px; flex-direction: column; gap: 3px; font-size: 12px; }
+    .ctrls .btn svg { width: 20px; height: 20px; }
+    .btn.rec-on { background: #ff4d4d; border-color: #ff4d4d; color: #fff; }
+    .meter-row { display: flex; align-items: center; gap: 10px; }
+    .meter-row .meter { flex: 1; }
+    .clips { display: flex; flex-direction: column; gap: 6px; }
+    .clip { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 9px; font-size: 13px; }
+    .clip a { margin-left: auto; }
+    details summary { cursor: pointer; color: var(--text-2); }
+    .opt-grid { display: grid; grid-template-columns: auto 1fr; gap: 10px 12px; align-items: center; margin-top: 10px; font-size: 13.5px; }
+    .hint-lock { position: absolute; bottom: 12px; right: 12px; z-index: 2; font-size: 12px; color: #cfd6df; background: rgba(0,0,0,.55); padding: 4px 8px; border-radius: 7px; }
+    @media (min-width: 900px) {
+      .lv { display: grid; grid-template-columns: 1fr 380px; grid-template-rows: auto 1fr; }
+      .lv-top { grid-column: 1 / -1; }
+      .stage { min-height: 0; }
+      .panel { border-left: 1px solid var(--line); overflow: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="lv">
+    <div class="lv-top">
+      <a class="brand" href="/" id="brand"></a>
+      <span class="conn" id="conn" title="Connection"></span>
+      <input type="text" id="sname" placeholder="Athlete name" title="Clips are saved under this athlete" style="height:30px; flex:1; min-width:0; max-width:220px">
+    </div>
+    <div class="stage" id="stage">
+      <video id="cam" playsinline muted autoplay></video>
+      <canvas id="ov"></canvas>
+      <div class="start" id="start">
+        <h2 style="margin:0">Live capture</h2>
+        <p>Point the camera at the athlete – side-on works best. GymCut detects each skill and saves it as a clip automatically.</p>
+        <button class="btn primary" id="btn-start" style="height:46px; padding:0 22px; font-size:15px">Start camera</button>
+        <p class="dim" id="start-err" style="font-size:13px"></p>
+      </div>
+      <div class="badge-rec hidden" id="badge-rec"><span class="rec-dot" id="recdot">ARMED</span></div>
+      <div class="badge-stats hidden" id="stats"></div>
+      <div class="badge-phase" id="phase"></div>
+      <div class="hint-lock hidden" id="hint-lock">tap a person to lock</div>
+    </div>
+    <div class="panel">
+      <div class="meter-row">
+        <span class="dim" style="font-size:12px;width:56px">Activity</span>
+        <div class="meter"><i id="meter" style="width:0%"></i><b id="meter-th" style="left:50%"></b></div>
+      </div>
+      <div class="ctrls">
+        <button class="btn on" id="btn-arm"></button>
+        <button class="btn" id="btn-rec"></button>
+        <button class="btn" id="btn-flip"></button>
+        <button class="btn" id="btn-stop"></button>
+      </div>
+      <details>
+        <summary>Options</summary>
+        <div class="opt-grid">
+          <label for="o-sens">Sensitivity</label><input type="range" id="o-sens" min="0" max="1" step="0.05" value="0.5">
+          <label for="o-res">Stream size</label>
+          <select id="o-res"><option value="480">480 px (weak Wi-Fi)</option><option value="640" selected>640 px</option><option value="960">960 px (better pose)</option></select>
+          <label for="o-hq">Full-quality copy</label>
+          <label class="check"><input type="checkbox" id="o-hq"> record on the phone, upload when stopped</label>
+          <label for="o-skel">Skeleton</label>
+          <label class="check"><input type="checkbox" id="o-skel" checked> show on preview</label>
+        </div>
+      </details>
+      <div>
+        <div class="row" style="margin-bottom:6px"><b>Clips</b><span class="spacer"></span><a href="/#/" target="_blank" id="lib-link">Open studio</a></div>
+        <div class="clips" id="clips"><div class="dim" style="font-size:13px">Saved skill clips appear here.</div></div>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/static/js/live.js"></script>
+</body>
+</html>

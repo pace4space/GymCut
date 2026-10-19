@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GymCut</title>
+  <meta name="description" content="Gymnastics video trimming and pose analysis">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2336c2a0'/%3E%3Ccircle cx='20.5' cy='8' r='2.6' fill='%23062a21'/%3E%3Cpath d='M8 24c3-1 5-3.5 6.5-7l2-4.5 4 3.5 3.5-1' stroke='%23062a21' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#/" id="brand"></a>
+    <nav class="nav">
+      <a href="#/" data-route="library">Library</a>
+      <a href="#/athletes" data-route="athletes">Athletes</a>
+      <a href="#/coach" data-route="coach">Coach</a>
+      <a href="#/live" data-route="live">Live</a>
+      <a href="#/exports" data-route="exports">Exports <span class="nav-badge hidden" id="jobs-badge"></span></a>
+    </nav>
+    <span class="spacer"></span>
+    <span class="gpu-chip" id="gpu-chip" title="Pose model device"><span class="dot"></span><span>…</span></span>
+    <button class="btn sm" id="btn-phone"></button>
+    <button class="btn sm icon ghost" id="btn-help" aria-label="Tours and help"></button>
+    <button class="btn sm icon ghost" id="btn-settings" aria-label="Settings"></button>
+  </header>
+  <main id="view"></main>
+  <script type="importmap">{ "imports": { "three": "/static/vendor/three/three.module.min.js" } }</script>
+  <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>

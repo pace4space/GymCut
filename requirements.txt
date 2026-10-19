@@ -1,0 +1,20 @@
+# PyTorch with CUDA is installed separately by setup.bat (needs the CUDA wheel index):
+#   pip install torch==2.14.1 torchvision --index-url https://download.pytorch.org/whl/cu130
+ultralytics>=8.4.0
+lap>=0.5.12
+fastapi>=0.115
+uvicorn[standard]>=0.30
+cryptography>=42
+segno>=1.6
+scipy>=1.12
+numpy>=1.26
+opencv-python>=4.9
+requests>=2.31
+pytest>=8
+websockets>=12
+absl-py>=2.3
+sounddevice>=0.5
+matplotlib>=3.8
+certifi
+# mediapipe (live 3D lifting) is installed by setup.bat with --no-deps: its opencv-contrib
+# dependency would replace opencv-python
